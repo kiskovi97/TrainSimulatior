@@ -8,6 +8,7 @@ public class Path : MonoBehaviour
 {
     public List<Vector3> Points;
     public Transform Train;
+    public Transform[] Components;
     public float Speed = 3f;
     public float LineWidth = 2f;
     public float TrainLegth = 5f;
@@ -20,8 +21,18 @@ public class Path : MonoBehaviour
     private readonly List<Vector3> _vertices = new List<Vector3>();
     private readonly List<int> _triangles = new List<int>();
 
-    void Start()
+    public void InitIfNecessary()
     {
+        if (Points.Count != _pointsList.Count)
+        {
+            SetUpPoints();
+        }
+    }
+
+    public void SetUpPoints()
+    {
+        _pointsList.Clear();
+        _pointsTimes.Clear();
         var time = 0f;
         foreach (var point in Points)
         {
@@ -44,6 +55,11 @@ public class Path : MonoBehaviour
         UpdateMesh();
     }
 
+    void Start()
+    {
+        InitIfNecessary();
+    }
+
     private void UpdateMesh()
     {
         _mesh.Clear();
@@ -54,6 +70,8 @@ public class Path : MonoBehaviour
 
     private void CreateShape()
     {
+        _vertices.Clear();
+        _triangles.Clear();
         const float stepCount = 50f;
         var step = lastTime / (stepCount * 2f);
         for (var time = 0f; time < lastTime; time += step * 2f)
@@ -96,6 +114,15 @@ public class Path : MonoBehaviour
         Train.rotation = Quaternion.LookRotation(GetPositionCatmull(_time + TrainLegth / 2f) - GetPositionCatmull(_time - TrainLegth / 2f));
 
         Train.position = GetPositionCatmull(_time);
+
+        for (var i = 0; i < Components.Length; i++)
+        {
+            var time = (_time - TrainLegth * (i+1)) % lastTime;
+            Components[i].rotation = Quaternion.LookRotation(GetPositionCatmull(time + TrainLegth * 0.5f) - GetPositionCatmull(time - TrainLegth * 0.5f));
+
+            Components[i].position = GetPositionCatmull(time);
+        }
+
 
         for (var time = 0f; time < lastTime; time += lastTime / 20f)
         {
