@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 845ff0ed5e52730489d5cd092b75e1fd, type: 3}
+  m_Name: URPTemplateSettings
+  m_EditorClassIdentifier: 
+  m_Background: {fileID: 21300000, guid: a121c9c39a5996342a9e6416bb99ee7e, type: 3}
+  m_SizeRatio: 4
+  m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
