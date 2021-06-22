@@ -3,15 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+[RequireComponent(typeof(MeshFilter))]
 public class Path : MonoBehaviour
 {
     public List<Vector3> Points;
     public Transform Train;
     public float Speed = 3f;
+    public float LineWidth = 2f;
+    public float TrainLegth = 5f;
     private readonly List<Vector3> _pointsList = new List<Vector3>();
     private readonly List<float> _pointsTimes = new List<float>();
     private float _time;
     private float lastTime;
+
+    private Mesh _mesh;
+    private readonly List<Vector3> _vertices = new List<Vector3>();
+    private readonly List<int> _triangles = new List<int>();
 
     void Start()
     {
@@ -30,6 +37,51 @@ public class Path : MonoBehaviour
         var first = _pointsList.FirstOrDefault();
         var last = _pointsList.LastOrDefault();
         lastTime = time + (first - last).magnitude;
+
+        _mesh = new Mesh();
+        GetComponent<MeshFilter>().mesh = _mesh;
+        CreateShape();
+        UpdateMesh();
+    }
+
+    private void UpdateMesh()
+    {
+        _mesh.Clear();
+        _mesh.vertices = _vertices.ToArray();
+        _mesh.triangles = _triangles.ToArray();
+        _mesh.RecalculateNormals();
+    }
+
+    private void CreateShape()
+    {
+        const float stepCount = 50f;
+        var step = lastTime / (stepCount * 2f);
+        for (var time = 0f; time < lastTime; time += step * 2f)
+        {
+            AddLine(GetPositionCatmull(time - step * 3), GetPositionCatmull(time - step), GetPositionCatmull(time + step), GetPositionCatmull(time + step * 3));
+        }
+    }
+
+    private void AddLine(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3)
+    {
+        var start = _vertices.Count;
+
+        var left = (p0 - p2).normalized * LineWidth / 2f;
+        left = new Vector3(left.z, left.y, -left.x);
+        var left2 = (p1 - p3).normalized * LineWidth / 2f;
+        left2 = new Vector3(left2.z, left2.y, -left2.x);
+
+        _vertices.Add(p1 - left);
+        _vertices.Add(p1 + left);
+        _vertices.Add(p2 + left2);
+        _vertices.Add(p2 - left2);
+
+        _triangles.Add(start);
+        _triangles.Add(start + 1);
+        _triangles.Add(start + 2);
+        _triangles.Add(start);
+        _triangles.Add(start + 2);
+        _triangles.Add(start + 3);
     }
 
     // Update is called once per frame
@@ -41,7 +93,7 @@ public class Path : MonoBehaviour
             _time -= lastTime;
         }
 
-        Train.rotation = Quaternion.LookRotation(GetPositionCatmull(_time + 2f) - GetPositionCatmull(_time - 2f));
+        Train.rotation = Quaternion.LookRotation(GetPositionCatmull(_time + TrainLegth / 2f) - GetPositionCatmull(_time - TrainLegth / 2f));
 
         Train.position = GetPositionCatmull(_time);
 
@@ -115,7 +167,7 @@ public class Path : MonoBehaviour
 
         var b1 = (t2 - t) / (t2 - t0) * a1 + (t - t0) / (t2 - t0) * a2;
         var b2 = (t3 - t) / (t3 - t1) * a2 + (t - t1) / (t3 - t1) * a3;
-
+        
         return (t2 - t) / (t2 - t1) * b1 + (t - t1) / (t2 - t1) * b2;
     }
 }

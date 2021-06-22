@@ -417,7 +417,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 799824630}
   m_LocalRotation: {x: 0.23911732, y: -0.3696445, z: 0.09904583, w: 0.89239895}
-  m_LocalPosition: {x: 12.88, y: 8.74, z: -6.65}
+  m_LocalPosition: {x: 10.5, y: 8.74, z: -10.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 433241190}
@@ -693,7 +693,7 @@ Transform:
   m_GameObject: {fileID: 1720928156}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 25, y: 25, z: 25}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 9
@@ -711,12 +711,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Points:
-  - {x: 0, y: 0, z: 10}
+  - {x: 0, y: 0, z: 15}
   - {x: 10, y: 0, z: 10}
-  - {x: 0, y: 0, z: -10}
+  - {x: 0, y: 0, z: -15}
   - {x: -10, y: 0, z: -10}
   Train: {fileID: 543450651718552377}
   Speed: 10
+  LineWidth: 4
+  TrainLegth: 5
 --- !u!1 &1782084220 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4995340882729475791, guid: 07a0264b0cc01b94ca005cc069dfbc51, type: 3}
@@ -914,7 +916,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1938529743}
   m_LocalRotation: {x: 0.23911732, y: -0.3696445, z: 0.09904583, w: 0.89239895}
-  m_LocalPosition: {x: 12.88, y: 8.74, z: -6.65}
+  m_LocalPosition: {x: 10.5, y: 8.74, z: -10.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 176717035}
