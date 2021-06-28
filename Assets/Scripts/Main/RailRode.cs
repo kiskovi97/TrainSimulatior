@@ -34,11 +34,23 @@ namespace Assets.Scripts.Main
             return null;
         }
 
-        public bool IsClose(Road road, Vector3 position, int from)
+        public bool IsClose(Road road, float time, int revIndex)
         {
-            var crossing = Crossings[road.Other(from)];
+            var c1 = Crossings[revIndex];
+            var c2 = Crossings[road.Other(revIndex)];
 
-            return (crossing.transform.position - position).magnitude < 0.4f;
+            var dir = (c1.transform.position - c2.transform.position).normalized;
+            var bestVector1 = BestVector(c1.transform, -dir);
+            var bestVector2 = BestVector(c2.transform, dir);
+
+            var p0 = Crossings[revIndex].transform.position;
+            var p1 = Crossings[revIndex].transform.position + bestVector1;
+
+
+            var p2 = Crossings[road.Other(revIndex)].transform.position + bestVector2;
+            var p3 = Crossings[road.Other(revIndex)].transform.position;
+
+            return catmullMesh != null && catmullMesh.IsOver(p0, p1, p2, p3, time);
         }
 
         public Vector3 GetPosition(Road road, float time, int revIndex)
@@ -57,7 +69,8 @@ namespace Assets.Scripts.Main
             var p2 = Crossings[road.Other(revIndex)].transform.position + bestVector2;
             var p3 = Crossings[road.Other(revIndex)].transform.position;
 
-            return catmullMesh.GetPosition(p0, p1, p2, p3, time);
+            if (catmullMesh != null) return catmullMesh.GetPosition(p0, p1, p2, p3, time);
+            return Vector3.zero;
         }
 
         public void CreateMesh()

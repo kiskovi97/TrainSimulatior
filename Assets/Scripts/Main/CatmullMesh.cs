@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Assets.Scripts.Main
@@ -14,7 +10,7 @@ namespace Assets.Scripts.Main
         private readonly List<Vector2> _uv = new List<Vector2>();
         private readonly List<int> _triangles = new List<int>();
         private float LineWidth = 1f;
-        private const float dirCount = 2f;
+        private const float dirCount = 1.5f;
 
         public void UpdateMesh()
         {
@@ -36,26 +32,25 @@ namespace Assets.Scripts.Main
         {
             var distance = (p1 - p2).magnitude;
             var lastTime = distance + dirCount * 2f;
-
-            var step = 1f; //lastTime / (stepCount * 2f);
-
-            var prevtime = dirCount + step;
-            for (var time = dirCount + step; time < lastTime - dirCount - step; time += step * 2f)
+            
+            var step = (float)distance / Mathf.Floor(distance); //lastTime / (stepCount * 2f);
+            
+            for (var time = dirCount; time <= lastTime - dirCount - step + 0.1f; time += step)
             {
-                var P1 = CatmullRomSpline(time - step * 3, p0, 0f, p1,  dirCount, p2, distance + dirCount, p3, lastTime);
-                var P2 = CatmullRomSpline(time - step, p0, 0f, p1, dirCount, p2, distance + dirCount, p3, lastTime);
+                var P1 = CatmullRomSpline(time - step, p0, 0f, p1,  dirCount, p2, distance + dirCount, p3, lastTime);
+                var P2 = CatmullRomSpline(time, p0, 0f, p1, dirCount, p2, distance + dirCount, p3, lastTime);
                 var P3 = CatmullRomSpline(time + step, p0, 0f, p1, dirCount, p2, distance + dirCount, p3, lastTime);
-                var P4 = CatmullRomSpline(time + step * 3, p0, 0f, p1, dirCount, p2, distance + dirCount, p3, lastTime);
+                var P4 = CatmullRomSpline(time + step * 2, p0, 0f, p1, dirCount, p2, distance + dirCount, p3, lastTime);
 
                 AddLine(P1, P2, P3, P4);
-                prevtime = time;
             }
+        }
 
-            var _P1 = CatmullRomSpline(prevtime - step, p0, 0f, p1, dirCount, p2, distance + dirCount, p3, lastTime);
-            var _P2 = CatmullRomSpline(prevtime + step, p0, 0f, p1, dirCount, p2, distance + dirCount, p3, lastTime);
-            var _P3 = CatmullRomSpline(lastTime - dirCount, p0, 0f, p1, dirCount, p2, distance + dirCount, p3, lastTime);
-            var _P4 = CatmullRomSpline(lastTime - dirCount + step * 2, p0, 0f, p1, dirCount, p2, distance + dirCount, p3, lastTime);
-            AddLine(_P1, _P2, _P3, _P4);
+        public bool IsOver(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float time)
+        {
+            var distance = (p1 - p2).magnitude;
+            var lastTime = distance + dirCount * 2f;
+            return lastTime < time;
         }
 
         public Vector3 GetPosition(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float time)

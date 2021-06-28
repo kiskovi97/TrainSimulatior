@@ -1,48 +1,53 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Assets.Scripts.Main
 {
-    class Train: MonoBehaviour
+    public class Train : TrainComponent
     {
-        public Road? currentRoad;
+        private readonly MovingPoint _pointFront = new MovingPoint();
 
-        public RailRode railRode;
-
-        private float _time = 0f;
-
-        public float speed = 5f;
-
-        private int fromIndex = 0;
-
-        private void Start()
+        protected override void Start()
         {
-            currentRoad = railRode.GetRoad();
-            if (currentRoad != null)
+            _pointBack.CurrentRoad = RailRode.GetRoad();
+            _pointFront.CurrentRoad = _pointBack.CurrentRoad;
+            if (_pointBack?.CurrentRoad != null)
             {
-                fromIndex = currentRoad.Value.index1;
-                transform.position = railRode.GetPosition(currentRoad.Value, 0f, fromIndex);
+                _pointBack.FromIndex = _pointBack.CurrentRoad.Value.index1;
             }
+            if (_pointFront?.CurrentRoad != null)
+            {
+                _pointFront.FromIndex = _pointFront.CurrentRoad.Value.index1;
+            }
+
+            _pointBack.Position = transform.position;
+            _pointFront.Position = transform.position;
+            _pointFront.Time += Others;
+
+            UpdatePositions(_pointBack);
+            UpdatePositions(_pointFront);
+
+            transform.position = _pointFront.Position;
+
+            InvokeUpdate();
+        }
+
+        protected override void SetPosition()
+        {
+            if (_pointBack.CurrentRoad == null) return;
+            var pos = (_pointBack.Position + _pointFront.Position) * 0.5f;
+
+            Debug.DrawLine(_pointBack.Position, _pointBack.Position + Vector3.up, Color.red);
+            Debug.DrawLine(_pointFront.Position, _pointFront.Position + Vector3.up, Color.red);
+            //transform.position += (pos - transform.position).normalized * Speed * 2f * Time.deltaTime;
+            transform.position = pos;
+            transform.rotation = Quaternion.LookRotation(_pointFront.Position - _pointBack.Position, Vector3.up);
         }
 
         private void Update()
         {
-            _time += Time.deltaTime * speed;
-            if (currentRoad != null)
-            {
-                transform.position = railRode.GetPosition(currentRoad.Value, _time, fromIndex);
-                if (railRode.IsClose(currentRoad.Value, transform.position, fromIndex))
-                {
-                    fromIndex = currentRoad.Value.Other(fromIndex);
-                    currentRoad = railRode.NextRoad(currentRoad.Value, fromIndex);
-                    Debug.Log("Next Road");
-                    _time = 0f;
-                }
-            }
+            UpdatePositions(_pointBack);
+            UpdatePositions(_pointFront);
+            SetPosition();
         }
     }
 }
