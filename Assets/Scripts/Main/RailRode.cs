@@ -104,7 +104,7 @@ namespace Assets.Scripts.Main
                     bestVector = currentVector;
             }
 
-            return bestVector;
+            return bestVector * 1.5f;
         }
     }
 

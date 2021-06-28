@@ -11,9 +11,9 @@ namespace Assets.Scripts.Main
     {
         public Mesh _mesh = new Mesh();
         private readonly List<Vector3> _vertices = new List<Vector3>();
+        private readonly List<Vector2> _uv = new List<Vector2>();
         private readonly List<int> _triangles = new List<int>();
-        public float LineWidth = 2f;
-        private const float stepCount = 10f;
+        private float LineWidth = 1f;
         private const float dirCount = 2f;
 
         public void UpdateMesh()
@@ -21,6 +21,7 @@ namespace Assets.Scripts.Main
             _mesh.Clear();
             _mesh.vertices = _vertices.ToArray();
             _mesh.triangles = _triangles.ToArray();
+            _mesh.SetUVs(0, _uv);
             _mesh.RecalculateNormals();
         }
 
@@ -28,6 +29,7 @@ namespace Assets.Scripts.Main
         {
             _vertices.Clear();
             _triangles.Clear();
+            _uv.Clear();
         }
 
         public void AddCatmullLine(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3)
@@ -35,8 +37,10 @@ namespace Assets.Scripts.Main
             var distance = (p1 - p2).magnitude;
             var lastTime = distance + dirCount * 2f;
 
-            var step = lastTime / (stepCount * 2f);
-            for (var time = 1f; time < lastTime - 1f; time += step * 2f)
+            var step = 1f; //lastTime / (stepCount * 2f);
+
+            var prevtime = dirCount + step;
+            for (var time = dirCount + step; time < lastTime - dirCount - step; time += step * 2f)
             {
                 var P1 = CatmullRomSpline(time - step * 3, p0, 0f, p1,  dirCount, p2, distance + dirCount, p3, lastTime);
                 var P2 = CatmullRomSpline(time - step, p0, 0f, p1, dirCount, p2, distance + dirCount, p3, lastTime);
@@ -44,7 +48,14 @@ namespace Assets.Scripts.Main
                 var P4 = CatmullRomSpline(time + step * 3, p0, 0f, p1, dirCount, p2, distance + dirCount, p3, lastTime);
 
                 AddLine(P1, P2, P3, P4);
+                prevtime = time;
             }
+
+            var _P1 = CatmullRomSpline(prevtime - step, p0, 0f, p1, dirCount, p2, distance + dirCount, p3, lastTime);
+            var _P2 = CatmullRomSpline(prevtime + step, p0, 0f, p1, dirCount, p2, distance + dirCount, p3, lastTime);
+            var _P3 = CatmullRomSpline(lastTime - dirCount, p0, 0f, p1, dirCount, p2, distance + dirCount, p3, lastTime);
+            var _P4 = CatmullRomSpline(lastTime - dirCount + step * 2, p0, 0f, p1, dirCount, p2, distance + dirCount, p3, lastTime);
+            AddLine(_P1, _P2, _P3, _P4);
         }
 
         public Vector3 GetPosition(Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3, float time)
@@ -68,12 +79,18 @@ namespace Assets.Scripts.Main
             _vertices.Add(p2 + left2);
             _vertices.Add(p2 - left2);
 
+            _uv.Add(new Vector2(1,1));
+            _uv.Add(new Vector2(1,0));
+            _uv.Add(new Vector2(0,0));
+            _uv.Add(new Vector2(0,1));
+
             _triangles.Add(start);
             _triangles.Add(start + 1);
             _triangles.Add(start + 2);
             _triangles.Add(start);
             _triangles.Add(start + 2);
             _triangles.Add(start + 3);
+            
         }
 
         private static Vector3 CatmullRomSpline(float t, Vector3 p0, float t0, Vector3 p1, float t1, Vector3 p2, float t2, Vector3 p3, float t3)
