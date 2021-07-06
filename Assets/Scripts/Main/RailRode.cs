@@ -10,13 +10,35 @@ namespace Assets.Scripts.Main
     {
         public Crossing[] Crossings = {};
         
-        public List<Road> roads = new List<Road>();
+        [SerializeField]
+        private List<Road> roads = new List<Road>();
+
+        public IEnumerable<Road> Roads => roads;
 
         private CatmullMesh catmullMesh;
 
-        void Start()
+        public void AddRoad(int index, int index2)
+        {
+            if (index >= roads.Count || index2 >= roads.Count) return;
+
+            var road = new Road() { index1 = index, index2 = index2 };
+            var road2 = new Road() { index1 = index2, index2 = index };
+            if (roads.Contains(road) || roads.Contains(road2)) return;
+
+            roads.Add(road);
+        }
+
+        private void Start()
         {
             CreateMesh();
+            foreach (var road in roads)
+            {
+                var cross = Crossings[road.index1];
+                var cross2 = Crossings[road.index2];
+
+                cross.Add(road, cross2.transform.position);
+                cross2.Add(road, cross.transform.position);
+            }
         }
 
         public Road GetRoad(Vector3 position)
@@ -46,13 +68,7 @@ namespace Assets.Scripts.Main
 
         public Road? NextRoad(Road prevRoad, int index)
         {
-            foreach (var possibleNextRoad in roads.Where(road => road.index2 == index || road.index1 == index))
-            {
-                if (!prevRoad.Equals(possibleNextRoad))
-                    return possibleNextRoad;
-            }
-
-            return null;
+            return Crossings[index].NextRoad(prevRoad);
         }
 
         public bool IsClose(Road road, float time, int revIndex)
@@ -122,7 +138,7 @@ namespace Assets.Scripts.Main
             catmullMesh.UpdateMesh();
         }
 
-        private Vector3 BestVector(Transform crossing, Vector3 dir)
+        private static Vector3 BestVector(Transform crossing, Vector3 dir)
         {
             var options = new[]
             {

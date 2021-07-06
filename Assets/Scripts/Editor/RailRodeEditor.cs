@@ -21,7 +21,7 @@ namespace Assets.Scripts.Editor
 
             Handles.color = Color.blue;
 
-            foreach (var road in targetComponent.roads.Where(road => crossings.Length > road.index2 && crossings.Length > road.index1))
+            foreach (var road in targetComponent.Roads.Where(road => crossings.Length > road.index2 && crossings.Length > road.index1))
             {
                 Handles.DrawLine(crossings[road.index1].transform.position, crossings[road.index2].transform.position);
             }
@@ -76,10 +76,7 @@ namespace Assets.Scripts.Editor
 
             if (GUILayout.Button("Add Indexes"))
             {
-                var road = new Road() {index1 = index, index2 = index2};
-                var road2 = new Road() { index1 = index2, index2 = index };
-                if (!targetComponent.roads.Contains(road) && !targetComponent.roads.Contains(road2))
-                    targetComponent.roads.Add(road);
+                targetComponent.AddRoad(index, index2);
             }
 
             SceneView.RepaintAll();
