@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Assets.Scripts.Main
 {
@@ -18,9 +19,16 @@ namespace Assets.Scripts.Main
             CreateMesh();
         }
 
-        public Road GetRoad()
+        public Road GetRoad(Vector3 position)
         {
-            return roads.FirstOrDefault();
+            var selected = 0;
+            for (var i = 1; i < Crossings.Length; i++)
+            {
+                if ((Crossings[selected].transform.position - position).sqrMagnitude
+                    > (Crossings[i].transform.position - position).sqrMagnitude)
+                    selected = i;
+            }
+            return roads.FirstOrDefault(data => data.index1 == selected || data.index2 == selected);
         }
 
         public Road? NextRoad(Road prevRoad, int index)

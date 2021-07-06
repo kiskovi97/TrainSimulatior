@@ -27,26 +27,38 @@ namespace Assets.Scripts.Main
 
         protected virtual void Start()
         {
-            _pointBack.CurrentRoad = RailRode.GetRoad();
-            if (_pointBack?.CurrentRoad != null)
+            _pointBack.CurrentRoad = ForwardTrainComponent != null ? ForwardTrainComponent._pointBack.CurrentRoad : RailRode.GetRoad(transform.position);
+
+            if (_pointBack.CurrentRoad != null)
             {
                 _pointBack.FromIndex = _pointBack.CurrentRoad.Value.index1;
             }
 
-            _pointBack.Position = transform.position;
-
-            ForwardTrainComponent.Updated += () =>
+            if (ForwardTrainComponent != null)
             {
-                if (ForwardTrainComponent != null)
-                {
-                    _pointBack.Time = ForwardTrainComponent._pointBack.Time - Others;
-                }
+                ForwardTrainComponent.Updated += OnConnectedUpdated;
+            }
 
-                UpdatePositions(_pointBack);
-                Updated?.Invoke();
-            };
+            InitData();
+        }
+
+        private void OnConnectedUpdated()
+        {
+            InitData();
+        }
+
+        protected virtual void InitData()
+        {
+            if (ForwardTrainComponent != null)
+            {
+                _pointBack.CurrentRoad = ForwardTrainComponent._pointBack.CurrentRoad;
+                if (_pointBack.CurrentRoad != null)
+                    _pointBack.FromIndex = _pointBack.CurrentRoad.Value.index1;
+                _pointBack.Time = ForwardTrainComponent._pointBack.Time - Others;
+            }
 
             UpdatePositions(_pointBack);
+            SetPosition();
             InvokeUpdate();
         }
 
