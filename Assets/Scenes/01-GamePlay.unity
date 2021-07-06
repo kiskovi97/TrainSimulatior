@@ -1976,6 +1976,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05519d7098d7990498f027aa19cb89ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  speed: 10
+  RailRode: {fileID: 532810723}
 --- !u!1001 &258532495174778003
 PrefabInstance:
   m_ObjectHideFlags: 0

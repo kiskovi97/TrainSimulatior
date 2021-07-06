@@ -31,6 +31,19 @@ namespace Assets.Scripts.Main
             return roads.FirstOrDefault(data => data.index1 == selected || data.index2 == selected);
         }
 
+        public Crossing GetCrossing(Vector3 position)
+        {
+            var selected = 0;
+            for (var i = 1; i < Crossings.Length; i++)
+            {
+                if ((Crossings[selected].transform.position - position).sqrMagnitude
+                    > (Crossings[i].transform.position - position).sqrMagnitude)
+                    selected = i;
+            }
+
+            return Crossings[selected];
+        }
+
         public Road? NextRoad(Road prevRoad, int index)
         {
             foreach (var possibleNextRoad in roads.Where(road => road.index2 == index || road.index1 == index))

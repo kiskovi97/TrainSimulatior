@@ -9,6 +9,7 @@ public class MoveCamera : MonoBehaviour, GameInput.IMoveActions
 {
     private Vector2 direction;
     public float speed = 10f;
+    public RailRode RailRode;
 
     void OnEnable()
     {
@@ -28,5 +29,14 @@ public class MoveCamera : MonoBehaviour, GameInput.IMoveActions
     void Update()
     {
         transform.position += new Vector3(-direction.y, 0, direction.x) * Time.deltaTime * speed;
+
+        var cross = RailRode.GetCrossing(transform.position);
+
+        var point = cross.transform.position;
+
+        Debug.DrawLine(point + Vector3.back, point + Vector3.up * 10f, Color.red);
+        Debug.DrawLine(point + Vector3.forward, point + Vector3.up * 10f, Color.red);
+        Debug.DrawLine(point + Vector3.right, point + Vector3.up * 10f, Color.red);
+        Debug.DrawLine(point + Vector3.left, point + Vector3.up * 10f, Color.red);
     }
 }
